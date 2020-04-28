@@ -1,4 +1,3 @@
-# In[]:
 import matplotlib.pyplot as plt
 
 # In[]:
