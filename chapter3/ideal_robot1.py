@@ -1,7 +1,7 @@
-In[1]:
+# In[1]:
 import matplotlib.pyplot as plt
 
-In[2]:
+# In[2]:
 class World:
     def __init__(self):
         #　ここにロボット等のオブジェクトを登録
@@ -35,6 +35,6 @@ class World:
 
         plt.show()
 
-In[3]:
+# In[3]:
 world = World()
 world.draw()
