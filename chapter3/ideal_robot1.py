@@ -8,7 +8,7 @@ class World:
 
     # オブジェクト登録のための関数
     def append(self, obj):
-        self.objects.apppend(obj)
+        self.objects.append(obj)
 
     def draw(self):
         # 8x8 inchの図を準備
