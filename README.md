@@ -8,4 +8,11 @@
 - Atom
   - Hydorogen
 
-AtomのHydorogenでコード記述＋実行 → Export NotebookでJupyter Notebook形式のファイルも作成
+AtomのHydorogenでコード記述＋実行.
+
+matplotlib の nbagg の使用が上手くいかなかった．
+代わりに以下のコードを先頭に記入している．
+
+``%matplotlib qt``
+
+別ウインド表示で，アニメーションが動作する．
