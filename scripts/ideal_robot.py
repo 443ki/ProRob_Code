@@ -1,102 +1,93 @@
-%matplotlib qt
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+get_ipython().run_line_magic('matplotlib', 'qt')
 import matplotlib.animation as anm
 import matplotlib.pyplot as plt
 import math
 import matplotlib.patches as patches
 import numpy as np
 
-# In[]:
+#
+
+
+# In[ ]:
+
+
 class World:
     def __init__(self, time_span, time_interval, debug=False):
-        # ‚±‚±‚Éƒƒ{ƒbƒg“™‚ÌƒIƒuƒWƒFƒNƒg‚ğ“o˜^
         self.objects = []
-        # ƒfƒoƒbƒO—pƒtƒ‰ƒO
         self.debug = debug
-        # ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“ŠÔ
         self.time_span = time_span
-        # ŠÔŠÔŠu
         self.time_interval = time_interval
 
-    # ƒIƒuƒWƒFƒNƒg“o˜^‚Ì‚½‚ß‚ÌŠÖ”
     def append(self, obj):
         self.objects.append(obj)
 
     def draw(self):
-        # 8x8 inch‚Ì}‚ğ€”õ
         fig = plt.figure(figsize=(8,8))
-        # ƒTƒuƒvƒƒbƒg‚ğ€”õ
         ax = fig.add_subplot(111)
-        # c‰¡”ä‚ğÀ•W‚Ì’l‚Æˆê’v‚³‚¹‚é
         ax.set_aspect('equal')
-        # X², Y²‚ğ-5m x 5m‚Ì”ÍˆÍ‚Å•`‰æ
         ax.set_xlim(-5,5)
         ax.set_ylim(-5,5)
-        # X², Y²‚Éƒ‰ƒxƒ‹‚ğ•\¦‚·‚é
         ax.set_xlabel("X", fontsize=10)
         ax.set_ylabel("Y", fontsize=10)
-        # •`‰æ‚·‚é}Œ`‚ÌƒŠƒXƒg
+
         elems = []
 
         if self.debug:
-            # ƒfƒoƒbƒO‚ÍƒAƒjƒ[ƒVƒ‡ƒ“‚³‚¹‚È‚¢
             for i in range (1000):
                 self.one_step(i, elms, ax)
         else:
-            # ƒAƒjƒ[ƒVƒ‡ƒ“‚Ì‚½‚ß‚ÌƒIƒuƒWƒFƒNƒgì¬
-            self.ani = anm.FuncAnimation(fig, self.one_step, fargs=(elems, ax), frames=int(self.time_span/self.time_interval)+1, interval=int(self.time_interval*1000), repeat=False)
+            self.ani = anm.FuncAnimation(fig,
+                self.one_step, fargs=(elems, ax),
+                frames=int(self.time_span/self.time_interval)+1,
+                interval=int(self.time_interval*1000), repeat=False)
             plt.show()
 
-    # 1ƒXƒeƒbƒv‚ği‚ß‚éŠÖ”
     def one_step(self, i, elems, ax):
         while elems:
-            # “ñd•`‰æ‚ğ–h‚®‚½‚ß‚É}Œ`‚ğ‚¢‚Á‚½‚ñƒNƒŠƒA
             elems.pop().remove()
-
-        # ‚Æ‚µ‚Ä•\¦‚·‚é•¶š—ñ
         time_str = "t=%.2f[s]" % (self.time_interval*i)
-        # elems‚ÉƒeƒLƒXƒgƒIƒuƒWƒFƒNƒg‚ğ’Ç‰Á‚·‚é
         elems.append(ax.text(-4.4, 4.5, time_str, fontsize=10))
-
         for obj in self.objects:
             obj.draw(ax, elems)
-            # ƒIƒuƒWƒFƒNƒg‚É"one_step"‚Æ‚¢‚¤–¼‚Ìƒƒ\ƒbƒh‚ª‚ ‚ê‚ÎÀs
             if hasattr(obj, "one_step"):
                 obj.one_step(self.time_interval)
 
-# In[]:
+#
+
+
+# In[ ]:
+
+
 class IdealRobot:
-    def __init__(self, pose, agent=None, color="black"):
-        # ˆø”‚©‚çp¨‚Ì‰Šú’l‚ğİ’è
+    def __init__(self, pose, agent=None, sensor=None, color="black"):
         self.pose = pose
-        # •`‰æ‚Ì‚½‚ß‚ÌŒÅ’è’l
         self.r = 0.2
-        # ˆø”‚©‚ç•`‰æ‚·‚é‚Æ‚«‚ÌF‚ğİ’è
         self.color = color
-        # ƒG[ƒWƒFƒ“ƒg‚ğw’è
         self.agent = agent
-        # ‹OÕ‚Ì•`‰æ—p
         self.poses = [pose]
+        self.sensor = sensor
 
     def draw(self, ax, elems):
-        # p¨‚Ì•Ï”‚ğ•ª‰ğ
         x, y, theta = self.pose
-        # ƒƒ{ƒbƒg‚Ì•@æ‚Ìx, yÀ•W
         xn = x + self.r * math.cos(theta)
         yn = y + self.r * math.sin(theta)
-        # ƒƒ{ƒbƒg‚ÌŒü‚«‚ğ¦‚·ü•ª‚Ì•`‰æ
         elems += ax.plot([x,xn], [y,yn], color=self.color)
-        # ƒƒ{ƒbƒg‚Ì“·‘Ì‚ğ¦‚·‰~‚ğì‚Á‚ÄCƒTƒuƒvƒƒbƒg‚É“o˜^
         c = patches.Circle(xy=(x, y), radius=self.r, fill=False, color=self.color)
         elems.append(ax.add_patch(c))
-        # ‹OÕ‚Ì•`‰æ
         self.poses.append(self.pose)
         elems += ax.plot([e[0] for e in self.poses], [e[1] for e in self.poses], linewidth=0.5, color="black")
+        if self.sensor and len(self.poses) > 1:
+            self.sensor.draw(ax, elems, self.poses[-2])
+        if self.agent and hasattr(self.agent, "draw"):
+            self.agent.draw(ax, elems)
 
-    # ƒNƒ‰ƒXƒƒ\ƒbƒh(ƒCƒ“ƒXƒ^ƒ“ƒX‰»‚µ‚È‚­‚Ä‚àÀs‰Â”\‚Èƒƒ\ƒbƒh)
     @classmethod
     def state_transition(cls, nu, omega, time, pose):
         t0 = pose[2]
-        # Šp‘¬“x‚ª‚Ù‚Ú0‚Ìê‡‚Æ‚»‚¤‚Å‚È‚¢ê‡‚Åê‡•ª‚¯
         if math.fabs(omega)  < 1e-10:
             return pose + np.array([
                 nu*math.cos(t0),
@@ -111,10 +102,16 @@ class IdealRobot:
     def one_step(self, time_interval):
         if not self.agent:
             return
-        nu, omega = self.agent.decision()
+        obs = self.sensor.data(self.pose) if self.sensor else None
+        nu, omega = self.agent.decision(obs)
         self.pose = self.state_transition(nu, omega, time_interval, self.pose)
 
-# In[]:
+#
+
+
+# In[ ]:
+
+
 class Agent:
     def __init__(self, nu, omega):
         self.nu = nu
@@ -123,60 +120,110 @@ class Agent:
     def decision(self, observation=None):
         return self.nu, self.omega
 
-# In[]:
+#
+
+
+# In[ ]:
+
+
 class Landmark:
     def __init__(self, x, y):
         self.pos = np.array([x, y]).T
         self.id = None
 
     def draw(self, ax, elems):
-        # U•z}‚É“_‚ğ‘Å‚Â‚½‚ß‚Ìƒƒ\ƒbƒh
         c = ax.scatter(self.pos[0], self.pos[1], s=100, marker="*", label="landmarks", color="orange")
         elems.append(c)
         elems.append(ax.text(self.pos[0], self.pos[1], "id:" + str(self.id), fontsize=10))
 
-# In[]:
+#
+
+
+# In[ ]:
+
+
 class Map:
     def __init__(self):
-        # ‹ó‚Ìƒ‰ƒ“ƒhƒ}[ƒN‚ÌƒŠƒXƒg‚ğ€”õ
         self.landmarks = []
 
-    # ƒ‰ƒ“ƒhƒ}[ƒN‚ğ’Ç‰Á‚·‚é
     def append_landmark(self, landmark):
-        # ’Ç‰Á‚·‚éƒ‰ƒ“ƒhƒ}[ƒN‚ÉID‚ğ—^‚¦‚é
         landmark.id = len(self.landmarks)
         self.landmarks.append(landmark)
 
-    # •`‰æ(Landmark‚Ìdraw‚ğ‡‚ÉŒÄ‚Ño‚·)
     def draw(self, ax, elems):
         for lm in self.landmarks:
             lm.draw(ax, elems)
 
-# In[]:
-world = World(10, 0.1, debug=False)
+#
 
-# ’n}‚ğ¶¬‚µ‚Äƒ‰ƒ“ƒhƒ}[ƒN‚ğ3‚Â’Ç‰Á‚·‚é
-m = Map()
-m.append_landmark(Landmark(2, -2))
-m.append_landmark(Landmark(-1, -3))
-m.append_landmark(Landmark(3, 3))
-#@world‚É’n}‚ğ“o˜^
-world.append(m)
 
-# 0.2[m/s]‚Å’¼i
-straight = Agent(0.2, 0.0)
-# 0.2[m/s], 10[deg/s]i‰~‚ğ•`‚­j
-circling = Agent(0.2, 10.0/180*math.pi)
-# ƒƒ{ƒbƒg‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğ¶¬iFÈ—ª,’¼ij
-robot1 = IdealRobot( np.array([2, 3, math.pi/6]).T, straight )
-# ƒƒ{ƒbƒg‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğ¶¬iFw’èC‰~j
-robot2 = IdealRobot( np.array([-2, -1, math.pi/5*6]).T, circling, "red")
-# ƒƒ{ƒbƒg‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğ¶¬iƒG[ƒWƒFƒ“ƒg—^‚¦‚È‚¢j
-robot3 = IdealRobot( np.array([0, 0, 0]).T, color="blue")
-#ƒƒ{ƒbƒg‚ğ“o˜^
-world.append(robot1)
-world.append(robot2)
-world.append(robot3)
+# In[ ]:
 
-# ƒAƒjƒ[ƒVƒ‡ƒ“Às
-world.draw()
+
+class IdealCamera:
+    def __init__(self, env_map,             distance_range=(0.5,6.0),
+            direction_range=(-math.pi/3,math.pi/3)):
+        self.map = env_map
+        self.lastdata = []
+
+        self.distance_range = distance_range
+        self.direction_range = direction_range
+
+    def visible(self, polarpos):
+        if polarpos is None:
+            return False
+
+        return self.distance_range[0] <= polarpos[0] <= self.distance_range[1] and             self.direction_range[0] <= polarpos[1] <= self.direction_range[1]
+
+    def data(self, cam_pose):
+        observed = []
+        for lm in self.map.landmarks:
+            z = self.observation_function(cam_pose, lm.pos)
+            if self.visible(z):
+                observed.append((z, lm.id))
+
+        self.lastdata = observed
+        return observed
+
+    @classmethod
+    def observation_function(cls, cam_pose, obj_pos):
+        diff = obj_pos - cam_pose[0:2]
+        phi = math.atan2(diff[1], diff[0]) -cam_pose[2]
+        while phi >= np.pi: phi -= 2*np.pi
+        while phi < -np.pi: phi += 2*np.pi
+        return np.array( [np.hypot(*diff), phi ] ).T
+
+    def draw(self, ax, elems, cam_pose):
+        for lm in self.lastdata:
+            x, y, theta = cam_pose
+            distance, direction = lm[0][0], lm[0][1]
+            lx = x + distance * math.cos(direction + theta)
+            ly = y + distance * math.sin(direction + theta)
+            elems += ax.plot([x, lx], [y, ly], color='pink')
+
+#
+
+
+# In[ ]:
+
+
+if __name__=='__main__':
+    world = World(30, 0.1, debug=False)
+
+    ### åœ°å›³ã‚’ç”Ÿæˆã—ã¦ãƒ©ãƒ³ãƒ‰ãƒãƒ¼ã‚¯ã‚’3ã¤è¿½åŠ ã™ã‚‹ ###
+    m = Map()
+    m.append_landmark(Landmark(2, -2))
+    m.append_landmark(Landmark(-1, -3))
+    m.append_landmark(Landmark(3, 3))
+    world.append(m)
+
+    ### ãƒ­ãƒœãƒƒãƒˆã‚’ä½œã‚‹ ###
+    straight = Agent(0.2, 0.0)
+    circling = Agent(0.2, 10.0/180*math.pi)
+    robot1 = IdealRobot( np.array([2, 3, math.pi/6]).T, sensor=IdealCamera(m), agent=straight )
+    robot2 = IdealRobot( np.array([-2, -1, math.pi/5*6]).T, sensor=IdealCamera(m), agent=circling, color="red")
+    world.append(robot1)
+    world.append(robot2)
+
+    ### ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å®Ÿè¡Œ ###
+    world.draw()

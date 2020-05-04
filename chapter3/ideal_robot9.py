@@ -65,7 +65,7 @@ class World:
 
 # In[]:
 class IdealRobot:
-    def __init__(self, pose, agent=None, color="black"):
+    def __init__(self, pose, agent=None, sensor=None, color="black"):
         # 引数から姿勢の初期値を設定
         self.pose = pose
         # 描画のための固定値
@@ -76,6 +76,7 @@ class IdealRobot:
         self.agent = agent
         # 軌跡の描画用
         self.poses = [pose]
+        self.sensor = sensor
 
     def draw(self, ax, elems):
         # 姿勢の変数を分解
@@ -91,9 +92,10 @@ class IdealRobot:
         # 軌跡の描画
         self.poses.append(self.pose)
         elems += ax.plot([e[0] for e in self.poses], [e[1] for e in self.poses], linewidth=0.5, color="black")
+        if self.sensor and len(self.poses) > 1:
+            self.sensor.draw(ax, elems, self.poses[-2])
 
-    # クラスメソッド(インスタンス化しなくても実行可能なメソッド)
-    @classmethod
+    @classmethod    # クラスメソッド(インスタンス化しなくても実行可能なメソッド)
     def state_transition(cls, nu, omega, time, pose):
         t0 = pose[2]
         # 角速度がほぼ0の場合とそうでない場合で場合分け
@@ -111,7 +113,8 @@ class IdealRobot:
     def one_step(self, time_interval):
         if not self.agent:
             return
-        nu, omega = self.agent.decision()
+        obs = self.sensor.data(self.pose) if self.sensor else None
+        nu, omega = self.agent.decision(obs)
         self.pose = self.state_transition(nu, omega, time_interval, self.pose)
 
 # In[]:
@@ -153,6 +156,37 @@ class Map:
             lm.draw(ax, elems)
 
 # In[]:
+class IdealCamera:
+    def __init__(self, env_map):
+        self.map = env_map
+        self.lastdata = []
+
+    def data(self, cam_pose):
+        observed = []
+        for lm in self.map.landmarks:
+            z = self.observation_function(cam_pose, lm.pos)
+            observed.append((z, lm.id))
+
+        self.lastdata = observed
+        return observed
+
+    @classmethod
+    def observation_function(cls, cam_pose, obj_pos):
+        diff = obj_pos - cam_pose[0:2] # [0:2]：スライス
+        phi = math.atan2(diff[1], diff[0]) -cam_pose[2]
+        while phi >= np.pi: phi -= 2*np.pi
+        while phi < -np.pi: phi += 2*np.pi
+        return np.array( [np.hypot(*diff), phi ] ).T
+
+    def draw(self, ax, elems, cam_pose):
+        for lm in self.lastdata:
+            x, y, theta = cam_pose
+            distance, direction = lm[0][0], lm[0][1]
+            lx = x + distance * math.cos(direction + theta)
+            ly = y + distance * math.sin(direction + theta)
+            elems += ax.plot([x, lx], [y, ly], color='pink')
+
+# In[]:
 world = World(10, 0.1, debug=False)
 
 # 地図を生成してランドマークを3つ追加する
@@ -168,15 +202,12 @@ straight = Agent(0.2, 0.0)
 # 0.2[m/s], 10[deg/s]（円を描く）
 circling = Agent(0.2, 10.0/180*math.pi)
 # ロボットのインスタンスを生成（色省略,直進）
-robot1 = IdealRobot( np.array([2, 3, math.pi/6]).T, straight )
+robot1 = IdealRobot( np.array([2, 3, math.pi/6]).T, sensor=IdealCamera(m), agent=straight )
 # ロボットのインスタンスを生成（色指定，円）
-robot2 = IdealRobot( np.array([-2, -1, math.pi/5*6]).T, circling, "red")
-# ロボットのインスタンスを生成（エージェント与えない）
-robot3 = IdealRobot( np.array([0, 0, 0]).T, color="blue")
+robot2 = IdealRobot( np.array([-2, -1, math.pi/5*6]).T, sensor=IdealCamera(m), agent=circling, color="red")
 #ロボットを登録
 world.append(robot1)
 world.append(robot2)
-world.append(robot3)
 
 # アニメーション実行
 world.draw()

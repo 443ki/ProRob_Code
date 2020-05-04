@@ -91,9 +91,9 @@ class IdealRobot:
         # 軌跡の描画
         self.poses.append(self.pose)
         elems += ax.plot([e[0] for e in self.poses], [e[1] for e in self.poses], linewidth=0.5, color="black")
+        print(self.poses)
 
-    # クラスメソッド(インスタンス化しなくても実行可能なメソッド)
-    @classmethod
+    @classmethod    # クラスメソッド(インスタンス化しなくても実行可能なメソッド)
     def state_transition(cls, nu, omega, time, pose):
         t0 = pose[2]
         # 角速度がほぼ0の場合とそうでない場合で場合分け
@@ -153,6 +153,27 @@ class Map:
             lm.draw(ax, elems)
 
 # In[]:
+class IdealCamera:
+    def __init__(self, env_map):
+        self.map = env_map
+
+    def data(self, cam_pose):
+        observed = []
+        for lm in self.map.landmarks:
+            p = self.observation_function(cam_pose, lm.pos)
+            observed.append((p, lm.id))
+
+        return observed
+
+    @classmethod
+    def observation_function(cls, cam_pose, obj_pos):
+        diff = obj_pos - cam_pose[0:2] # [0:2]：スライス
+        phi = math.atan2(diff[1], diff[0]) -cam_pose[2]
+        while phi >= np.pi: phi -= 2*np.pi
+        while phi < -np.pi: phi += 2*np.pi
+        return np.array( [np.hypot(*diff), phi ] ).T
+
+# In[]:
 world = World(10, 0.1, debug=False)
 
 # 地図を生成してランドマークを3つ追加する
@@ -180,3 +201,8 @@ world.append(robot3)
 
 # アニメーション実行
 world.draw()
+
+# In[]:
+cam = IdealCamera(m)
+p = cam.data(robot2.pose)
+print(p)
