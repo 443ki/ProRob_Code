@@ -1,5 +1,7 @@
 # ProRob_Code
- 詳解確率ロボティクス勉強用
+ [詳解 確率ロボティクス](https://www.amazon.co.jp/dp/4065170060)勉強用
+ 
+ 参考：https://github.com/ryuichiueda/LNPR_BOOK_COD
 
 ## 環境
 - Windows 10
