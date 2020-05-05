@@ -8,10 +8,10 @@
 - Python 3.7
 - Anaconda
 - Atom
-  - Hydorogen
+  - Hydrogen
 
 ### アニメーションについて
-AtomのHydorogenでコード記述＋実行.
+AtomのHydrogenでコード記述＋実行.
 matplotlib の nbagg の使用が上手くいかなかった．
 代わりに以下のコードを先頭に記入している．
 別ウインド表示で，アニメーションが動作する．
