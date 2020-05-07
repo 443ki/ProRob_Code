@@ -116,3 +116,12 @@ plt.bar(zs, ys, color="red", alpha=0.3)
 f = freqs["probs"].sort_index()
 plt.bar(f.index, f.values, color="blue", alpha=0.3)
 plt.show()
+
+# In[]:
+from scipy.stats import norm
+
+zs = range(190,230)
+ys = [norm.pdf(z, mean1, stddev1) for z in zs]
+
+plt.plot(zs,ys)
+plt.show()
