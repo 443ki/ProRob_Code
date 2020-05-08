@@ -78,7 +78,7 @@ sum(freqs["probs"])
 
 # In[]:
 freqs["probs"].sort_index().plot.bar(color="blue")
-plot.show()
+plt.show()
 
 # In[]:
 def drawing():
@@ -87,8 +87,8 @@ def drawing():
 drawing()
 
 # In[]:
-#samples = [ drawing() for i in range(100)]
-samples = [ drawing() for i in range(len(data))]
+samples = [ drawing() for i in range(100)]
+# samples = [ drawing() for i in range(len(data))]
 simulated = pd.DataFrame(samples, columns=["lidar"])
 p = simulated["lidar"]
 p.hist(bins = max(p) - min(p), color="orange", align='left')
@@ -124,4 +124,18 @@ zs = range(190,230)
 ys = [norm.pdf(z, mean1, stddev1) for z in zs]
 
 plt.plot(zs,ys)
+plt.show()
+
+# In[]:
+zs = range(190, 230)
+ys = [norm.cdf(z, mean1, stddev1) for z in zs]
+
+plt.plot(zs, ys, color="red")
+plt.show()
+
+# In[]:
+zs = range(190, 230)
+ys = [norm.cdf(z+0.5, mean1, stddev1) - norm.cdf(z-0.5, mean, stddev1) for z in zs]
+
+plt.bar(zs, ys)
 plt.show()
