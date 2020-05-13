@@ -41,3 +41,10 @@ plt.quiver(c.mean[0], c.mean[1], v[0], v[1], color="blue", angles='xy', scale_un
 
 plt.gca().set_aspect('equal')
 plt.show()
+
+# In[]:
+V = eig_vec
+L = np.diag(eig_vals)
+
+print("•ª‰ğ‚µ‚½‚à‚Ì‚ğŒvZ:\n", V.dot(L.dot(np.linalg.inv(V))))
+print("‰º‚Ì‹¤•ªUs—ñ:\n", np.array([[100, -25*math.sqrt(3)], [-25*math.sqrt(3), 50]]))
